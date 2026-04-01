@@ -10,6 +10,7 @@
 
 </div>
 
+> The raw imported snapshot is preserved in this repository's [`backup` branch](https://github.com/TaGoat/claude_code_cli/tree/backup). The `main` branch contains added documentation, tooling, and repository metadata.
 
 ---
 
